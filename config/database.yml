@@ -8,7 +8,7 @@ default: &default
 
 development:
   <<: *default
-  database: public_interviews_backend_development
+  database: <%= ENV['DATABASE_USERNAME'] %>
 
 test:
   <<: *default

@@ -19,9 +19,12 @@
 !/tmp/pids/.keep
 
 # Ignore uploaded files in development.
+/dev
 /storage/*
 !/storage/.keep
+docker-compose.yaml
 .byebug_history
+
 
 # Ignore master key for decrypting credentials and more.
 /config/master.key
@@ -29,4 +32,5 @@
 !.env.sample
 .env
 
-example.txt
+/spec/example.txt
+*.swp
