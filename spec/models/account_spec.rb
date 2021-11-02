@@ -5,6 +5,7 @@
 # Table name: accounts
 #
 #  id           :bigint           not null, primary key
+#  balance      :decimal(10, 2)   default(0.0), not null
 #  email        :string
 #  first_name   :string
 #  last_name    :string
@@ -33,5 +34,53 @@ RSpec.describe Account, type: :model do
     it { is_expected.to validate_presence_of(:last_name) }
     it { is_expected.to validate_presence_of(:phone_number) }
     it { is_expected.to validate_presence_of(:email) }
+  end
+
+  describe '#verified_and_fetch_by_email_or_phone' do
+    it 'raises exception on pending account' do
+      pending_account = create(:pending_account)
+      expect{
+        Account.verified_and_fetch_by_email_or_phone({email: pending_account.email})
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'raises exception on unverified account' do
+      unverified_account = create(:unverified_account)
+      expect{
+        Account.verified_and_fetch_by_email_or_phone({phone: unverified_account.phone_number})
+      }.to raise_error(ActiveRecord::RecordNotFound)
+    end
+
+    it 'should fetch verified account' do
+      verified_account = create(:verified_account)
+      expect(Account.verified_and_fetch_by_email_or_phone(email: verified_account.email)).to eq(verified_account)
+    end
+  end
+
+  describe '#send_money' do
+    let(:debit_account){ create(:verified_account, balance: 234.58) }
+    let(:credit_account){ create(:verified_account) }
+
+    it 'raises exception if less debit account balance' do
+      expect{
+        debit_account.send_money(500, credit_account)
+      }.to raise_error(Exceptions::LowAccountBalanceError, "Unsufficient balance in debit account")
+    end
+
+    it 'deducts amount from the debit account balance' do
+      transfer_amount = 50
+      initial_balance = debit_account.balance
+      expect{
+        debit_account.send_money(transfer_amount, credit_account)
+      }.to change(debit_account, :balance).from(initial_balance).to(initial_balance - transfer_amount)
+    end
+
+    it 'deposits amount to the credit account balance' do
+      transfer_amount = 50
+      initial_balance = credit_account.balance
+      expect{
+        debit_account.send_money(transfer_amount, credit_account)
+      }.to change(credit_account, :balance).from(initial_balance).to(initial_balance + transfer_amount)
+    end
   end
 end
