@@ -32,5 +32,5 @@ docker-compose.yaml
 !.env.sample
 .env
 
-/spec/example.txt
+/spec/examples.txt
 *.swp

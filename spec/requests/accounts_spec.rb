@@ -69,7 +69,81 @@ RSpec.describe "Accounts", type: :request do
         creditor: { email: receiver.email },
         amount: 100.89
       }
-      post send_money_accounts_path, params: { account: trans_params }.to_json, headers: { "Content-Type" => "application/json" }
+      post send_money_accounts_path, params: { account: trans_params }.to_json, headers: { "content-type" => "application/json" }
+      expect(response).to have_http_status(:forbidden)
+    end
+  end
+
+  describe "POST /receive_money" do
+    it 'returns forbidden on pending receiver account' do
+      sender = create(:verified_account)
+      receiver = create(:pending_account)
+      trans_params = {
+        debitor: { email: sender.email },
+        creditor: { email: receiver.email },
+        amount: 100.89
+      }
+      post receive_money_accounts_path, params: { account: trans_params }.to_json, headers: { "Content-Type" => "application/json" }
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it 'returns forbidden on unverified receiver account' do
+      sender = create(:verified_account)
+      receiver = create(:unverified_account)
+      trans_params = {
+        debitor: { email: sender.email },
+        creditor: { email: receiver.email },
+        amount: 100.89
+      }
+      post receive_money_accounts_path, params: { account: trans_params }.to_json, headers: { "Content-Type" => "application/json" }
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it 'returns forbidden on pending sender account' do
+      sender = create(:pending_account)
+      receiver = create(:verified_account)
+      trans_params = {
+        debitor: { email: sender.email },
+        creditor: { email: receiver.email },
+        amount: 100.89
+      }
+      post receive_money_accounts_path, params: { account: trans_params }.to_json, headers: { "content-type" => "application/json" }
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it 'returns forbidden on unverified sender account' do
+      sender = create(:unverified_account)
+      receiver = create(:verified_account)
+      trans_params = {
+        debitor: { email: sender.email },
+        creditor: { email: receiver.email },
+        amount: 100.89
+      }
+      post receive_money_accounts_path, params: { account: trans_params }.to_json, headers: { "content-type" => "application/json" }
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it 'returns OK on verified accounts' do
+      sender = create(:verified_account)
+      receiver = create(:verified_account)
+      trans_params = {
+        debitor: { email: sender.email },
+        creditor: { email: receiver.email },
+        amount: 100.89
+      }
+      post receive_money_accounts_path, params: { account: trans_params }.to_json, headers: { "content-type" => "application/json" }
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "return forbidden on sender's unsufficient balance" do
+      sender = create(:verified_account, balance: 50)
+      receiver = create(:verified_account)
+      trans_params = {
+        debitor: { email: sender.email },
+        creditor: { email: receiver.email },
+        amount: 100.89
+      }
+      post receive_money_accounts_path, params: { account: trans_params }.to_json, headers: { "content-type" => "application/json" }
       expect(response).to have_http_status(:forbidden)
     end
   end

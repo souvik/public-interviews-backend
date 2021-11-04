@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :accounts, only: [ :index ] do
     collection do
       post :send_money
+      post :receive_money
     end
   end
 end

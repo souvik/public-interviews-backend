@@ -83,4 +83,31 @@ RSpec.describe Account, type: :model do
       }.to change(credit_account, :balance).from(initial_balance).to(initial_balance + transfer_amount)
     end
   end
+
+  describe '#receive_money' do
+    let(:debit_account){ create(:verified_account, balance: 234.58) }
+    let(:credit_account){ create(:verified_account) }
+
+    it 'raises exception if less debit account balance' do
+      expect{
+        credit_account.receive_money(500, debit_account)
+      }.to raise_error(Exceptions::LowAccountBalanceError, "Unsufficient balance in debit account")
+    end
+
+    it 'deducts amount from the debit account balance' do
+      transfer_amount = 50
+      initial_balance = debit_account.balance
+      expect{
+        credit_account.receive_money(transfer_amount, debit_account)
+      }.to change(debit_account, :balance).from(initial_balance).to(initial_balance - transfer_amount)
+    end
+
+    it 'deposits amount to the credit account balance' do
+      transfer_amount = 50
+      initial_balance = credit_account.balance
+      expect{
+        credit_account.receive_money(transfer_amount, debit_account)
+      }.to change(credit_account, :balance).from(initial_balance).to(initial_balance + transfer_amount)
+    end
+  end
 end

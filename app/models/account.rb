@@ -44,6 +44,14 @@ class Account < ApplicationRecord
     end
   end
 
+  def receive_money(amount, debit_account)
+    raise Exceptions::LowAccountBalanceError.new("Unsufficient balance in debit account") if debit_account.balance < amount
+    self.transaction do
+      debit_account.withdraw!(amount)
+      deposit!(amount)
+    end
+  end
+
   def withdraw!(withdrawal_amount)
     raise Exceptions::InvalidAccountStatusError.new("Account not in verified state") unless verified_status?
     update!(balance: balance - withdrawal_amount)
