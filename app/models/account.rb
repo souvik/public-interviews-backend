@@ -21,6 +21,8 @@
 #  index_accounts_on_status        (status)
 #
 class Account < ApplicationRecord
+  has_many :transaction_histories
+
   validates :first_name, :last_name, :email, :phone_number, presence: true
 
   enum status: {
@@ -41,6 +43,7 @@ class Account < ApplicationRecord
     self.transaction do
       withdraw!(amount)
       credit_account.deposit!(amount)
+      log_this_transaction!(self, credit_account, amount)
     end
   end
 
@@ -49,6 +52,7 @@ class Account < ApplicationRecord
     self.transaction do
       debit_account.withdraw!(amount)
       deposit!(amount)
+      log_this_transaction!(debit_account, self, amount)
     end
   end
 
@@ -60,5 +64,14 @@ class Account < ApplicationRecord
   def deposit!(paid_amount)
     raise Exceptions::InvalidAccountStatusError.new("Account not in verified state") unless verified_status?
     update!(balance: balance + paid_amount)
+  end
+
+  private
+  def log_this_transaction!(debit_account, credit_account, amount)
+    TransactionHistory.create!([{
+      account: debit_account, amount: amount, mode: TransactionHistory.modes[:debit]
+    }, {
+      account: credit_account, amount: amount, mode: TransactionHistory.modes[:credit]
+    }])
   end
 end

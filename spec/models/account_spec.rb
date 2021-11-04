@@ -82,6 +82,18 @@ RSpec.describe Account, type: :model do
         debit_account.send_money(transfer_amount, credit_account)
       }.to change(credit_account, :balance).from(initial_balance).to(initial_balance + transfer_amount)
     end
+
+    it 'logs the transaction as debit for debit account' do
+      expect{
+        debit_account.send_money(50, credit_account)
+      }.to change{ debit_account.transaction_histories.count }.by(1)
+    end
+
+    it 'logs the transaction as credit for credit account' do
+      expect{
+        debit_account.send_money(50, credit_account)
+      }.to change{ credit_account.transaction_histories.count }.by(1)
+    end
   end
 
   describe '#receive_money' do
@@ -108,6 +120,18 @@ RSpec.describe Account, type: :model do
       expect{
         credit_account.receive_money(transfer_amount, debit_account)
       }.to change(credit_account, :balance).from(initial_balance).to(initial_balance + transfer_amount)
+    end
+
+    it 'logs the transaction as debit for debit account' do
+      expect{
+        credit_account.receive_money(50, debit_account)
+      }.to change{ debit_account.transaction_histories.count }.by(1)
+    end
+
+    it 'logs the transaction as credit for credit account' do
+      expect{
+        credit_account.receive_money(50, debit_account)
+      }.to change{ credit_account.transaction_histories.count }.by(1)
     end
   end
 end
