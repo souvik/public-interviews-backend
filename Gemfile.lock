@@ -113,6 +113,8 @@ GEM
       multi_xml (>= 0.5.2)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
+    jsonapi-serializer (2.2.0)
+      activesupport (>= 4.2)
     lefthook (0.7.6)
     listen (3.7.0)
       rb-fsevent (~> 0.10, >= 0.10.3)
@@ -282,6 +284,7 @@ DEPENDENCIES
   dotenv-rails
   factory_bot_rails
   faker
+  jsonapi-serializer
   lefthook
   listen (~> 3.2)
   pg (>= 0.18, < 2.0)

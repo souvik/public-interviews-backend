@@ -8,5 +8,7 @@ Rails.application.routes.draw do
       post :send_money
       post :receive_money
     end
+
+    resources :transactions, only: [ :index ]
   end
 end

@@ -28,8 +28,8 @@ RSpec.describe AccountsController, type: :controller do
     context "with not verified accounts" do
       it 'raises exception on credit account' do
         allow(Account).to receive_message_chain(:verified_status, :find_by!).and_raise(ActiveRecord::RecordNotFound)
+        bypass_rescue
         expect {
-          bypass_rescue
           post :send_money, params: paramters
         }.to raise_error(ActiveRecord::RecordNotFound)
       end
@@ -57,8 +57,8 @@ RSpec.describe AccountsController, type: :controller do
     context "with not verified accounts" do
       it 'raises exception on credit account' do
         allow(Account).to receive_message_chain(:verified_status, :find_by!).and_raise(ActiveRecord::RecordNotFound)
+        bypass_rescue
         expect {
-          bypass_rescue
           post :receive_money, params: paramters
         }.to raise_error(ActiveRecord::RecordNotFound)
       end

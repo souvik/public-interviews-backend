@@ -21,7 +21,7 @@
 #  index_accounts_on_status        (status)
 #
 class Account < ApplicationRecord
-  has_many :transaction_histories
+  has_many :transactions, class_name: 'TransactionHistory'
 
   validates :first_name, :last_name, :email, :phone_number, presence: true
 
@@ -35,6 +35,10 @@ class Account < ApplicationRecord
     def verified_and_fetch_by_email_or_phone(identifier)
       return verified_status.find_by!(email: identifier[:email]) if identifier.has_key?(:email)
       verified_status.find_by!(phone_number: identifier[:phone]) if identifier.has_key?(:phone)
+    end
+
+    def verified_by_id(id)
+      verified_status.find(id)
     end
   end
 
